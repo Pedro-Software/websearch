@@ -4,10 +4,20 @@ import java.util.List;
 
 public class WebSearchModel {
     private final File sourceFile;
-    private final List<QueryObserver> observers = new ArrayList<>();
+    private final List<ObserverFilter> observers = new ArrayList<>();
 
     public interface QueryObserver {
         void onQuery(String query);
+    }
+
+    private static class ObserverFilter {
+        QueryObserver observer;
+        QueryFilter filter;
+
+        ObserverFilter(QueryObserver observer, QueryFilter filter) {
+            this.observer = observer;
+            this.filter = filter;
+        }
     }
 
     public WebSearchModel(File sourceFile) {
@@ -26,13 +36,15 @@ public class WebSearchModel {
         }
     }
 
-    public void addQueryObserver(QueryObserver observer) {
-        observers.add(observer);
+    public void addQueryObserver(QueryObserver observer, QueryFilter filter) {
+        observers.add(new ObserverFilter(observer, filter));
     }
 
     private void notifyAllObservers(String query) {
-        for (QueryObserver observer : observers) {
-            observer.onQuery(query);
+        for (ObserverFilter item : observers) {
+            if (item.filter.matches(query)) {
+                item.observer.onQuery(query);
+            }
         }
     }
 }
