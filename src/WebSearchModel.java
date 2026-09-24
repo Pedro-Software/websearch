@@ -4,6 +4,7 @@ import java.util.List;
 
 public class WebSearchModel {
     private final File sourceFile;
+    // Lista que guarda os observadores junto com seus filtros escolhidos
     private final List<ObserverFilter> observers = new ArrayList<>();
 
     public interface QueryObserver {
@@ -42,7 +43,10 @@ public class WebSearchModel {
 
     private void notifyAllObservers(String query) {
         for (ObserverFilter item : observers) {
+            // O modelo não sabe se o filtro procura palavras ou tamanho.
+            // Ele apenas chama o método matches e recebe a resposta.
             if (item.filter.matches(query)) {
+                // Somente quando o filtro aceita a consulta (retorna true), o observador é notificado.
                 item.observer.onQuery(query);
             }
         }
